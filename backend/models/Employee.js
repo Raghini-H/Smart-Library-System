@@ -23,7 +23,31 @@ const employeeSchema = new mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please add a password'],
+    }, department: {
+      type: String,
+      default: "",
     },
+
+    phone: {
+      type: String,
+      default: "",
+    },
+
+    designation: {
+      type: String,
+      default: "",
+    },
+
+    address: {
+      type: String,
+      default: "",
+    },
+
+    joiningDate: {
+      type: Date,
+      default: null,
+    },
+    
     image: {
         type: String,
     },

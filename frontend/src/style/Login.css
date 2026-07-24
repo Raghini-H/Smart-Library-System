@@ -1,0 +1,137 @@
+.auth-container,
+.employee-auth-page,
+.admin-auth-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top left, #22c55e 0, #020617 55%, #000 100%);
+  padding: 24px;
+}
+
+.auth-card,
+.employee-auth-card,
+.admin-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(15, 23, 42, 0.95);
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.95);
+  border: 1px solid rgba(74, 222, 128, 0.7);
+  color: #e5e7eb;
+}
+
+.auth-card h2,
+.employee-title,
+.admin-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f9fafb;
+  text-align: center;
+}
+
+.auth-subtitle,
+.employee-subtitle,
+.admin-subtitle {
+  text-align: center;
+  color: #bbf7d0;
+  margin-bottom: 18px;
+}
+
+.form-group input,
+.employee-form-group input,
+.admin-form-group input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(74, 222, 128, 0.5);
+  background: #0f172a;
+  color: #e5e7eb;
+  transition: 0.2s;
+}
+
+.form-group input:focus,
+.employee-form-group input:focus,
+.admin-form-group input:focus {
+  border-color: #22c55e;
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
+}
+
+.auth-btn,
+.employee-auth-btn,
+.admin-auth-btn {
+  margin-top: 20px;
+  width: 100%;
+  background: #22c55e;
+  color: #000;
+  border: none;
+  padding: 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.auth-btn:hover,
+.employee-auth-btn:hover,
+.admin-auth-btn:hover {
+  background: #16a34a;
+}
+
+.error-message,
+.employee-error,
+.admin-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fecaca;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.auth-footer,
+.employee-hint {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #bbf7d0;
+}
+
+.auth-footer a,
+.employee-hint a {
+  color: #22c55e;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.auth-footer a:hover,
+.employee-hint a:hover {
+  text-decoration: underline;
+}
+
+.auth-error {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid #ef4444;
+  color: #fecaca;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.forgot-link {
+  text-align: right;
+  margin-bottom: 15px;
+}
+
+.forgot-link a {
+  font-size: 13px;
+  color: #22c55e;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.forgot-link a:hover {
+  text-decoration: underline;
+}

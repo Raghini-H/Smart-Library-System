@@ -82,7 +82,9 @@ const getAllBooks = async (req, res) => {
 
 const getAllRequests = async (req, res) => {
     try {
-        const bookrequest = await BookRequest.find();
+        const bookrequest = await BookRequest.find()
+            .populate("user", "fullname email")
+            .populate("book", "title author");
         res.json(bookrequest);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -99,35 +101,35 @@ const getAllUsers = async (req, res) => {
 };
 
 const addPlan = async (req, res) => {
-  try {
-    const { name, bookLimit, discount, description } = req.body;
+    try {
+        const { name, bookLimit, discount, description } = req.body;
 
-    if (!name || !bookLimit || discount === undefined) {
-      return res.status(400).json({ message: 'All required fields must be filled' });
+        if (!name || !bookLimit || discount === undefined) {
+            return res.status(400).json({ message: 'All required fields must be filled' });
+        }
+
+        const existingPlan = await Plan.findOne({ name });
+        if (existingPlan) {
+            return res.status(400).json({ message: 'Plan with this name already exists' });
+        }
+
+        const newPlan = new Plan({
+            name,
+            bookLimit,
+            discount,
+            description,
+        });
+
+        await newPlan.save();
+
+        res.status(201).json({
+            message: 'Plan added successfully',
+            plan: newPlan,
+        });
+    } catch (error) {
+        console.log("ERROR:", error);
+        res.status(500).json({ message: error.message });
     }
-
-    const existingPlan = await Plan.findOne({ name });
-    if (existingPlan) {
-      return res.status(400).json({ message: 'Plan with this name already exists' });
-    }
-
-    const newPlan = new Plan({
-      name,
-      bookLimit,
-      discount,
-      description,
-    });
-
-    await newPlan.save();
-
-    res.status(201).json({
-      message: 'Plan added successfully',
-      plan: newPlan,
-    });
-  } catch (error) {
-    console.log("ERROR:", error); 
-    res.status(500).json({ message: error.message });
-  }
 };
 
 

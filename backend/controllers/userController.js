@@ -1,15 +1,17 @@
 const jwt = require('jsonwebtoken');
 const Books = require('../models/Books');
+const User = require('../models/User');
 const Plan = require('../models/Plan');
 const BookRequest = require('../models/BookRequest');
+const nodemailer = require('nodemailer');
 
 const searchForBooks = async (req, res) => {
-    try {
-        const books = await Books.find();
-        res.json(books);
-    } catch (error) {
-        res.status(500).json({ message: error.message });
-    }
+  try {
+    const books = await Books.find();
+    res.json(books);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };
 
 const requestBook = async (req, res) => {
@@ -109,12 +111,142 @@ const getPlans = async (req, res) => {
   }
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select('-password');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
+const updateUserProfile = async (req, res) => {
+  try {
+    const user = await require('../models/User').findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    user.fullname = req.body.fullname || user.fullname;
+    user.email = req.body.email || user.email;
+    user.department = req.body.department || user.department;
+    user.phone = req.body.phone || user.phone;
+    user.college = req.body.college || user.college;
+    user.year = req.body.year || user.year;
+
+    if (req.body.password) {
+      user.password = req.body.password; 
+    }
+
+    const updatedUser = await user.save();
+
+    res.json({
+      message: 'Profile updated successfully',
+      user: {
+        _id: updatedUser._id,
+        fullname: updatedUser.fullname,
+        email: updatedUser.email,
+        userid: updatedUser.userid,
+        department: updatedUser.department,
+        phone: updatedUser.phone,
+        college: updatedUser.college,
+        year: updatedUser.year,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    user.resetOtp = otp;
+    user.resetOtpExpire = Date.now() + 10 * 60 * 1000; // 10 mins
+
+    await user.save();
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      },
+    });
+
+    await transporter.sendMail({
+      from: `"Library System" <${process.env.EMAIL_USER}>`,
+      to: user.email,
+      subject: "Password Reset OTP",
+      html: `
+        <h3>Your OTP for password reset</h3>
+        <h2>${otp}</h2>
+        <p>This OTP is valid for 10 minutes.</p>
+      `,
+    });
+
+    res.json({ message: "OTP sent to your email" });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { email, otp, newPassword } = req.body;
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    if (
+      user.resetOtp !== otp ||
+      user.resetOtpExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or expired OTP" });
+    }
+
+    user.password = newPassword;
+    user.resetOtp = undefined;
+    user.resetOtpExpire = undefined;
+
+    await user.save();
+
+    res.json({ message: "Password reset successful" });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
 
 module.exports = {
-    searchForBooks,
-    requestBook,
-    getMyRequests,
-    getMyIssuedBooks,
-    requestReturn,
-    getPlans
+  searchForBooks,
+  requestBook,
+  getMyRequests,
+  getMyIssuedBooks,
+  requestReturn,
+  getPlans,
+  getUserProfile,
+  updateUserProfile,
+  forgotPassword,
+  resetPassword,
 };

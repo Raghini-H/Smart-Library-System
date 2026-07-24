@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Employee = require('../models/Employee');
+const Books = require('../models/Books');
 const BookRequest = require('../models/BookRequest');
 const nodemailer = require('nodemailer');
 
@@ -124,7 +125,7 @@ const updateRequestStatus = async (req, res) => {
         const previousStatus = request.status;
         request.status = status;
 
-       
+
         if (status === 'approved' && previousStatus !== 'approved') {
             const now = new Date();
             request.issueDate = now;
@@ -205,6 +206,92 @@ const confirmReturn = async (req, res) => {
     }
 };
 
+const registerBooks = async (req, res) => {
+    const { title, author, category, rent } = req.body;
+
+    try {
+        const books = await Books.create({
+            title,
+            author,
+            category,
+            rent,
+        });
+        res.status(201).json({
+            message: "Book added successfully",
+            books
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getAllBooks = async (req, res) => {
+    try {
+        const books = await Books.find();
+        res.json(books);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const getEmployeeProfile = async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.user.id).select('-password');
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        res.json(employee);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+const updateEmployeeProfile = async (req, res) => {
+    try {
+        const employee = await Employee.findById(req.user.id);
+
+        if (!employee) {
+            return res.status(404).json({ message: 'Employee not found' });
+        }
+
+        employee.name = req.body.name || employee.name;
+        employee.email = req.body.email || employee.email;
+        employee.department = req.body.department || employee.department;
+        employee.phone = req.body.phone || employee.phone;
+        employee.designation = req.body.designation || employee.designation;
+        employee.address = req.body.address || employee.address;
+        employee.joiningDate = req.body.joiningDate || employee.joiningDate;
+
+        if (req.body.password) {
+            employee.password = req.body.password;
+        }
+
+        const updated = await employee.save();
+
+        res.json({
+            message: "Profile updated successfully",
+            employee: {
+                _id: updated._id,
+                name: updated.name,
+                email: updated.email,
+                employeeId: updated.employeeId,
+                department: updated.department,
+                phone: updated.phone,
+                designation: updated.designation,
+                address: updated.address,
+                joiningDate: updated.joiningDate,
+            }
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 
 module.exports = {
     registerEmployee,
@@ -214,5 +301,9 @@ module.exports = {
     updateRequestStatus,
     getReturnRequests,
     confirmReturn,
-    requestReturnFromUser
+    requestReturnFromUser,
+    getAllBooks,
+    registerBooks,
+    getEmployeeProfile,
+    updateEmployeeProfile
 };
